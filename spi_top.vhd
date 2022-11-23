@@ -3,7 +3,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 entity spi_top is
   generic(Volt_Max : in integer := 1241);
-  Port(reset, clk: in std_logic;
+  Port(reset, clk, flag0, flag1, flag2: in std_logic;
        data_in_top: in std_logic_vector(5 downto 0);
        toggle : in std_logic;
        toggle_display : out std_logic;
@@ -95,20 +95,26 @@ address_vector <= std_logic_vector(to_unsigned(address, address_vector'length));
 volt_actual <= to_integer(unsigned(data_in_top));
 
 data_buffer <= data_buffer_s when volt_actual < volt_max else std_logic_vector(to_unsigned(volt_max, data_buffer'length));
-process(clk)
-begin
-    if rising_Edge(clk) then
-        if input = 1 then
-            blk_data_s <= blk_data_buffer1;
-        else
-            blk_data_S <= blk_data_buffer2;  
-        end if;
-    end if;
-end process;
+blk_data_s <= blk_data_buffer2 when flag1 = '1' else blk_data_buffer1 when flag2 = '1' else blk_data_s;
+
+
+--Determines what wave
+--process(clk)
+--begin
+--    if rising_Edge(clk) then
+--        if toggle = '1' then  -- toggle is just a filler
+--            blk_data_s <= blk_data_buffer1;
+--        else
+--            blk_data_S <= blk_data_buffer2;  
+--        end if;
+--    end if;
+--end process;
+
+--Determines whether switches or waves
 process(clk)
     begin
         if rising_edge(clk) then
-            if toggle = '1' then
+            if flag2 = '1' then
                 toggle_display <= '0';
                 data_buffer_s(15 downto 0) <= "0000"&data_in_top&"000000";
                 load_s <= '1';
@@ -121,6 +127,8 @@ process(clk)
              end if;
         end if;
 end process;
+
+--Address counter
 process(clk, reset)
     begin
         if reset = '1' then
