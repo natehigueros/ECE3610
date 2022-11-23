@@ -54,11 +54,11 @@ T: uart_tx port map(   clk=> clk,
                            sdata => sdata_out );
 process(data)
 begin
-if data = "01110111" then --W (waveform1)
+if data = "01110111" then -- W (waveform1)
     flag0 <= '1';
-elsif data = "01101111" then --O (Waveform2)
+elsif data = "01101111" then -- O (Waveform2)
     flag1 <= '1';
-elsif data = "01110011" then --Switches
+elsif data = "01110000" then -- P (Switches)
     flag2 <= '1';
 else
     flag0 <= '0';
